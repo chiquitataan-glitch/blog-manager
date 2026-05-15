@@ -1,0 +1,6 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="240" rx="120" fill="#FFF1EB"/>
+  <circle cx="120" cy="92" r="42" fill="#FCA5A5"/>
+  <path d="M54 210C66 165 91 140 120 140C149 140 174 165 186 210" fill="#7F1D1D"/>
+  <text x="120" y="132" text-anchor="middle" fill="white" font-family="Arial" font-size="48" font-weight="700">九</text>
+</svg>

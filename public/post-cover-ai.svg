@@ -1,0 +1,8 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#FFF1F2"/>
+  <circle cx="250" cy="160" r="140" fill="#FB7185" fill-opacity="0.35"/>
+  <circle cx="880" cy="220" r="180" fill="#FDBA74" fill-opacity="0.45"/>
+  <path d="M120 460L1080 230" stroke="#7F1D1D" stroke-width="12" stroke-linecap="round"/>
+  <text x="100" y="150" fill="#7F1D1D" font-family="Arial" font-size="58" font-weight="700">AI Native</text>
+  <text x="100" y="220" fill="#9A3412" font-family="Arial" font-size="28">Product Thinking / OPC</text>
+</svg>

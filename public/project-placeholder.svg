@@ -1,0 +1,8 @@
+<svg width="960" height="540" viewBox="0 0 960 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="540" rx="48" fill="#FFF7ED"/>
+  <circle cx="210" cy="160" r="120" fill="#FDA4AF" fill-opacity="0.45"/>
+  <circle cx="760" cy="110" r="150" fill="#FDBA74" fill-opacity="0.38"/>
+  <path d="M120 390C285 260 520 220 840 300" stroke="#991B1B" stroke-width="18" stroke-linecap="round"/>
+  <path d="M160 410C330 300 520 270 780 330" stroke="#FB7185" stroke-width="6" stroke-linecap="round"/>
+  <text x="90" y="130" fill="#7F1D1D" font-family="Arial" font-size="52" font-weight="700">99BLOG</text>
+</svg>

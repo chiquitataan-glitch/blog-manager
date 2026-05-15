@@ -1,0 +1,5 @@
+<svg width="520" height="520" viewBox="0 0 520 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M260 22C318 94 357 161 359 226C361 286 330 337 260 498C190 337 159 286 161 226C163 161 202 94 260 22Z" fill="url(#g)"/>
+  <path d="M260 52C298 122 322 180 323 232C324 274 303 321 260 432C217 321 196 274 197 232C198 180 222 122 260 52Z" fill="white" fill-opacity="0.28"/>
+  <defs><linearGradient id="g" x1="151" y1="27" x2="380" y2="472" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF7ED"/><stop offset="0.45" stop-color="#FDA4AF"/><stop offset="1" stop-color="#FB7185"/></linearGradient></defs>
+</svg>
