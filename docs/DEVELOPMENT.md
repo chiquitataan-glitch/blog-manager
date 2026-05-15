@@ -1,6 +1,6 @@
 # 99blog 开发文档
 
-更新时间：2026-05-16 02:50:52
+更新时间：2026-05-16 03:50:38
 
 ## 1. 项目定位
 
@@ -312,5 +312,105 @@ md2wechat layout list --json
 3. 增强经历页信息密度。
 4. 明确公众号导出链路。
 5. 完成部署域名与 SEO 信息。
+
+## 13. 2026-05-16 工作交接记录
+
+### 13.1 今日已完成
+
+- 完成后台管理系统 README：`ADMIN_README.md`，包含后台定位、访问方式、模块说明、数据存储、图片持久化、md2wechat 依赖、部署前检查和安全提醒。
+- 完成桌面快速启动脚本：`C:/Users/赵春昊/Desktop/打开99blog后台.cmd`。
+  - 脚本会进入 `D:/99blog`。
+  - 启动 `npm run dev`。
+  - 等待 6 秒后打开 `http://localhost:3000/admin`。
+- 完成 Git 仓库初始化与远程配置。
+  - 本地仓库：`D:/99blog`。
+  - 当前分支：`main`。
+  - 远程仓库：`https://github.com/chiquitataan-glitch/blog-manager.git`。
+  - Git 用户邮箱：`ChiquitaTaan@gmail.com`。
+- 完成初始提交并推送到 GitHub。
+  - 远程仓库原本已有一个初始 README 提交。
+  - 推送时未强推，采用 `fetch + rebase` 保留远端历史。
+  - 解决了 `README.md` 的 add/add 冲突，保留完整 `99blog` 项目 README。
+  - 当前远程 `main` 已包含完整项目代码。
+
+### 13.2 当前部署状态
+
+- 服务器 IP：`62.234.55.252`。
+- 域名：暂未完成审核，因此 `src/data/site.ts` 中 `origin: "https://example.com"` 暂不替换。
+- 服务器暂未配置 Nginx。
+- 计划先使用服务器 IP + 3000 端口完成临时验证，域名审核完成后再配置 Nginx 反向代理和 HTTPS。
+- 推荐服务器持久化 SQLite 路径：`/var/www/99blog-data/99blog.sqlite`。
+- 推荐生产环境变量：`BLOG_DB_PATH=/var/www/99blog-data/99blog.sqlite`。
+- 推荐用 PM2 或 systemd 常驻运行 Next.js。
+- 后台 `/admin` 当前无登录密码，公网部署前必须通过 Nginx Basic Auth、IP 白名单、VPN 或后续登录系统保护。
+
+### 13.3 当前阻塞点
+
+执行服务器环境检查时，SSH 首次连接失败：
+
+```text
+Host key verification failed.
+```
+
+原因：本机尚未确认服务器 `62.234.55.252` 的 SSH host key，非交互命令无法自动输入 `yes`。
+
+明天继续时，先让用户在 Claude Code 中手动执行一次：
+
+```bash
+! ssh root@62.234.55.252
+```
+
+看到确认提示后输入：
+
+```text
+yes
+```
+
+如果要求密码，输入 root 密码。成功登录后执行：
+
+```bash
+exit
+```
+
+然后继续由助手执行服务器环境检查。
+
+### 13.4 明天建议继续步骤
+
+1. 确认 SSH host key 后重新检查服务器环境：
+   - `node` 是否安装。
+   - `npm` 是否安装。
+   - `git` 是否安装。
+   - `pm2` 是否安装。
+   - 是否已有 `/var/www/` 相关目录。
+2. 如服务器缺少运行环境，先安装 Node.js、npm、git、PM2 和 `@geekjourneyx/md2wechat`。
+3. 在服务器克隆 GitHub 仓库：
+   - `https://github.com/chiquitataan-glitch/blog-manager.git`
+4. 在服务器执行：
+   - `npm install`
+   - `npm run build`
+5. 设置持久化数据目录和环境变量：
+   - `/var/www/99blog-data/`
+   - `BLOG_DB_PATH=/var/www/99blog-data/99blog.sqlite`
+6. 使用 PM2 启动：
+   - 先监听 `3000` 端口验证。
+7. 临时验证访问：
+   - `http://62.234.55.252:3000`
+   - `http://62.234.55.252:3000/admin`
+8. 域名审核通过后再做：
+   - 更新 `src/data/site.ts` 的 `origin`。
+   - 配置 Nginx 反向代理。
+   - 配置 HTTPS。
+   - 给 `/admin` 增加访问保护。
+
+### 13.5 明天启动时先检查
+
+建议优先运行：
+
+```bash
+git -C "D:/99blog" status --short --branch
+git -C "D:/99blog" log --oneline --decorate -5
+```
+
+确认本地没有未提交变更后，再继续服务器部署。
 
 朋友们，这个项目的骨架已经搭起来了，接下来拼的就是内容质量和长期维护能力。
