@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     (body.links ?? []).map((link, index) => ({
       label: link.label ?? "",
       value: link.value ?? "",
-      href: link.href ?? "#",
+      href: link.href ?? "",
       sortOrder: index,
     })),
   );

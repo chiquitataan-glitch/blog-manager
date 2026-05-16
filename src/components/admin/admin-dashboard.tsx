@@ -330,7 +330,7 @@ export function AdminDashboard() {
     return (
       <section className={panelClassName()}>
         <h2 className="text-2xl font-black text-red-950">链接</h2>
-        <p className="mt-2 text-sm text-stone-600">用于联系页和外部入口。暂未补齐的链接可以先填 #。</p>
+        <p className="mt-2 text-sm text-stone-600">用于联系页和外部入口。暂未补齐的链接可以留空，前台会显示为“待补充”。</p>
         <div className="mt-4 grid gap-3">
           {links.map((link, index) => (
             <div key={link.id} className="grid gap-3 md:grid-cols-3">
@@ -341,7 +341,7 @@ export function AdminDashboard() {
           ))}
         </div>
         <div className="mt-4 flex gap-3">
-          <button className="ink-button rounded-full border border-red-200 bg-white px-5 py-3 font-bold text-red-950" onClick={() => setLinks([...links, { id: Date.now(), label: "", value: "", href: "#", sortOrder: links.length }])}>新增链接</button>
+          <button className="ink-button rounded-full border border-red-200 bg-white px-5 py-3 font-bold text-red-950" onClick={() => setLinks([...links, { id: Date.now(), label: "", value: "", href: "", sortOrder: links.length }])}>新增链接</button>
           <button className="ink-button rounded-full bg-red-900 px-5 py-3 font-bold text-white" onClick={saveLinks}>保存链接</button>
         </div>
       </section>
@@ -404,7 +404,7 @@ export function AdminDashboard() {
                     </select>
                   </div>
                 ))}
-                <button className="rounded-full border border-red-200 bg-white px-4 py-2 text-sm font-bold text-red-950" onClick={() => updateProject(selectedProjectIndex, { ...selectedProject, links: [...selectedProject.links, { label: "新链接", href: "#", kind: "other" }] })}>新增项目链接</button>
+                <button className="rounded-full border border-red-200 bg-white px-4 py-2 text-sm font-bold text-red-950" onClick={() => updateProject(selectedProjectIndex, { ...selectedProject, links: [...selectedProject.links, { label: "新链接", href: "", kind: "other" }] })}>新增项目链接</button>
               </div>
             </div>
           ) : null}

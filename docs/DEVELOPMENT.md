@@ -67,7 +67,7 @@ D:/99blog
 | 项目页 | `/projects` | 已完成主体 | 优先读取 SQLite 后台项目数据，静态数据 fallback；占位链接显示为待补充 |
 | 经历页 | `/experience` | 已完成主体 | 优先读取 SQLite 后台经历数据，已展示组织、时间和亮点 |
 | 关于页 | `/about` | 已完成主体 | 读取 `profile` 数据，展示头像与技能 |
-| 本机后台 | `/admin` | 工作台可用 | 个人本机使用，不设登录密码，采用左侧导航 + 右侧模块内容区，支持资料、链接、项目、经历、文案、图片和公众号 HTML 预览 |
+| 本机后台 | `/admin` | 工作台可用 | 已通过 Basic Auth 保护 `/admin` 和 `/api/admin/*`；采用左侧导航 + 右侧模块内容区，支持资料、链接、项目、经历、文案、图片和公众号 HTML 预览 |
 | 联系页 | `/contact` | 已完成主体 | GitHub 等链接仍待补齐 |
 
 ## 5. 当前已完成能力
@@ -97,13 +97,14 @@ D:/99blog
 
 ### 5.5 本机后台
 
-- `/admin` 已实现轻量内容后台，按个人本机使用设计，不设置登录密码。
+- `/admin` 已实现轻量内容后台，并通过 `proxy.ts` 对 `/admin` 与 `/api/admin/*` 增加 Basic Auth 保护。
 - 后台采用“左侧导航 + 右侧模块内容区”的工作台布局，包含概览、个人资料、链接、项目、经历、文案、图片、公众号预览模块。
 - 概览模块展示链接、项目、经历、文案、图片数量，并提供常用入口。
 - 项目和经历模块采用“列表 + 详情编辑”，内容多起来后仍能快速选择和维护。
 - 后台支持维护个人资料、头像路径、链接、项目、经历、文章 / 公众号文案、图片上传。
 - 前台首页、关于、联系、项目、经历页已接入 SQLite 优先读取，静态数据作为 fallback。
 - SQLite 默认数据库路径为 `data/99blog.sqlite`，可通过 `BLOG_DB_PATH` 覆盖。
+- 生产环境必须设置 `ADMIN_BASIC_AUTH_USER` 和 `ADMIN_BASIC_AUTH_PASSWORD`，本地开发未设置时允许访问后台。
 - 图片上传目录为 `public/uploads/YYYY/MM/`。
 - 公众号 HTML 生成通过 `md2wechat convert` 执行，初版只生成 HTML，不自动上传草稿。
 
@@ -127,21 +128,21 @@ D:/99blog
 
 - 头像字段默认使用 `/profile/avatar.webp`，需要将真实头像放到 `public/profile/avatar.webp`。
 - GitHub 联系方式为“待补充”。
-- 多个联系链接使用 `href: "#"`。
+- 多个联系链接使用空字符串表示待补充，前台展示为不可点击信息。
 
 ### 6.3 外部链接
 
 文件：`src/data/links.ts`
 
 - GitHub 链接为“待补充”。
-- 部分链接仍使用 `href: "#"`。
+- 部分链接仍使用空字符串表示待补充，前台展示为不可点击信息。
 
 ### 6.4 项目数据
 
 文件：`src/data/projects.ts`
 
 - 项目封面使用 `/project-placeholder.svg`，可通过后台替换为真实封面。
-- GitHub / Demo / 资料链接存在占位；前台遇到 `href: "#"` 或空链接时展示“待补充”，不再跳转。
+- GitHub / Demo / 资料链接存在占位；前台遇到空链接或历史 `href: "#"` 时展示“待补充”，不再跳转。
 - 项目阶段和成果描述可继续补真实数据。
 
 ### 6.5 经历数据
@@ -174,9 +175,9 @@ D:/99blog
 
 目标：避免用户点击 `#` 产生无反馈。
 
-- 项目卡片遇到 `href: "#"` 或空链接时不渲染为可点击链接，改为“待补充”。（已完成）
-- 联系方式遇到 `href: "#"` 时展示纯文本或复制按钮。（待做）
-- 增加数据层约定：空链接统一使用 `null`，减少 `#` 的语义混乱。（待做）
+- 项目卡片遇到空链接或历史 `href: "#"` 时不渲染为可点击链接，改为“待补充”。（已完成）
+- 联系方式遇到空链接或历史 `href: "#"` 时展示纯文本信息，不再渲染为可点击链接。（已完成）
+- 增加数据层约定：空链接统一使用空字符串，减少 `#` 的语义混乱。（已完成）
 
 ### 第三阶段：经历页信息增强
 
@@ -239,10 +240,10 @@ data/99blog.sqlite
 服务器部署时可设置：
 
 ```bash
-BLOG_DB_PATH=/var/www/99blog/data/99blog.sqlite
+BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite
 ```
 
-注意：当前后台不设置登录密码，只适合本机或受控内网使用，不建议直接暴露公网。
+注意：当前后台已通过应用层 Basic Auth 保护。生产环境必须设置 `ADMIN_BASIC_AUTH_USER` 和 `ADMIN_BASIC_AUTH_PASSWORD`，并建议叠加服务器层访问限制。
 
 ## 9. Next.js 16 开发注意事项
 
@@ -294,12 +295,67 @@ md2wechat layout list --json
 
 1. 安装 Node.js、npm 和 `@geekjourneyx/md2wechat`，确保服务器上 `md2wechat` 在 PATH 中可执行。
 2. 使用 `npm install` 安装依赖，使用 `npm run build` 构建。
-3. 将 SQLite 数据库存放在独立持久化目录，例如 `/var/www/99blog/data/99blog.sqlite`。
-4. 将上传目录 `public/uploads/` 纳入备份策略。
-5. 通过 `BLOG_DB_PATH` 指定服务器数据库位置。
-6. 使用 PM2 或 systemd 常驻 `npm run start`。
-7. 使用 Nginx 反向代理到 Next.js 服务。
-8. 当前 `/admin` 不含登录密码，公网部署前建议先增加登录、IP 白名单或仅通过内网 / VPN 访问。
+3. 将不同项目拆到独立目录，代码、数据、日志和端口全部隔离，避免后续接入 openclaw 时互相覆盖。
+4. 使用 PM2 或 systemd 常驻运行 Next.js。
+5. 使用 Nginx 反向代理到不同本机端口。
+6. `/admin` 和 `/api/admin/*` 已有应用层 Basic Auth，公网部署时必须设置后台账号密码，建议再叠加 Nginx Basic Auth、IP 白名单或 VPN。
+
+### 11.1 双项目路径与端口规划
+
+为了确保 99blog 和后续 openclaw 分开运行，服务器统一采用以下目录约定：
+
+```text
+/var/www/apps/99blog/current        # 99blog 项目代码
+/var/www/apps/openclaw/current      # openclaw 项目代码，后续接入时使用
+/var/www/data/99blog/               # 99blog SQLite、上传资产等持久化数据
+/var/www/data/openclaw/             # openclaw 独立持久化数据
+/var/log/pm2/                       # PM2 日志目录
+```
+
+端口规划：
+
+| 项目 | PM2 进程名 | 监听地址 | 端口 | 数据路径 |
+|---|---|---|---|---|
+| 99blog | `99blog` | `127.0.0.1` | `3000` | `/var/www/data/99blog/99blog.sqlite` |
+| openclaw | `openclaw` | `127.0.0.1` | `3001` | `/var/www/data/openclaw/` |
+
+说明：
+
+- 99blog 固定使用 `3000`，openclaw 预留 `3001`，避免两个 Next.js 服务抢同一端口。
+- 99blog 生产环境变量固定为 `BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite`。
+- openclaw 后续接入时不要复用 99blog 的代码目录、数据目录或 PM2 进程名。
+- Nginx 后续可按域名分流，例如 99blog 指向 `127.0.0.1:3000`，openclaw 指向 `127.0.0.1:3001`。
+
+### 11.2 99blog PM2 启动方式
+
+项目已提供 `ecosystem.config.cjs`，生产环境建议在服务器项目目录执行：
+
+```bash
+cd /var/www/apps/99blog/current
+npm install
+npm run build
+pm2 start ecosystem.config.cjs
+pm2 save
+```
+
+也可以直接执行：
+
+```bash
+BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite ADMIN_BASIC_AUTH_USER=admin ADMIN_BASIC_AUTH_PASSWORD=请替换为强密码 npm run start:99blog
+```
+
+注意：`ecosystem.config.cjs` 中的 `ADMIN_BASIC_AUTH_PASSWORD=CHANGE_ME_BEFORE_DEPLOY` 只是占位，上线前必须替换。
+
+### 11.3 openclaw 预留原则
+
+openclaw 接入时建议遵守：
+
+1. 克隆到 `/var/www/apps/openclaw/current`。
+2. 使用独立端口 `3001`。
+3. 使用独立 PM2 进程名 `openclaw`。
+4. 数据、上传文件和缓存放到 `/var/www/data/openclaw/`。
+5. 不要写入 `/var/www/data/99blog/`，不要复用 `BLOG_DB_PATH`。
+6. 如果 openclaw 也需要环境变量，单独使用 `.env.production` 或独立 PM2 ecosystem 文件维护。
 
 ## 12. 当前判断
 
@@ -338,11 +394,15 @@ md2wechat layout list --json
 - 服务器 IP：`62.234.55.252`。
 - 域名：暂未完成审核，因此 `src/data/site.ts` 中 `origin: "https://example.com"` 暂不替换。
 - 服务器暂未配置 Nginx。
-- 计划先使用服务器 IP + 3000 端口完成临时验证，域名审核完成后再配置 Nginx 反向代理和 HTTPS。
-- 推荐服务器持久化 SQLite 路径：`/var/www/99blog-data/99blog.sqlite`。
-- 推荐生产环境变量：`BLOG_DB_PATH=/var/www/99blog-data/99blog.sqlite`。
+- 计划先使用服务器 IP + 3000 端口完成 99blog 临时验证，域名审核完成后再配置 Nginx 反向代理和 HTTPS。
+- 服务器后续会接入 openclaw，因此采用双项目隔离目录：99blog 放在 `/var/www/apps/99blog/current`，openclaw 预留 `/var/www/apps/openclaw/current`。
+- 99blog 固定监听 `127.0.0.1:3000`，openclaw 预留监听 `127.0.0.1:3001`。
+- 推荐 99blog 持久化 SQLite 路径：`/var/www/data/99blog/99blog.sqlite`。
+- 推荐 99blog 生产环境变量：`BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite`。
+- 99blog 后台访问保护变量：`ADMIN_BASIC_AUTH_USER`、`ADMIN_BASIC_AUTH_PASSWORD`，上线前必须替换默认占位密码。
+- openclaw 后续使用独立数据目录 `/var/www/data/openclaw/`，不要复用 99blog 的数据目录或环境变量。
 - 推荐用 PM2 或 systemd 常驻运行 Next.js。
-- 后台 `/admin` 当前无登录密码，公网部署前必须通过 Nginx Basic Auth、IP 白名单、VPN 或后续登录系统保护。
+- 后台 `/admin` 和 `/api/admin/*` 已通过应用层 Basic Auth 保护，公网部署时建议继续叠加 Nginx Basic Auth、IP 白名单或 VPN。
 
 ### 13.3 当前阻塞点
 
@@ -389,18 +449,25 @@ exit
    - `npm install`
    - `npm run build`
 5. 设置持久化数据目录和环境变量：
-   - `/var/www/99blog-data/`
-   - `BLOG_DB_PATH=/var/www/99blog-data/99blog.sqlite`
+   - 99blog 代码目录：`/var/www/apps/99blog/current`
+   - 99blog 数据目录：`/var/www/data/99blog/`
+   - `BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite`
+   - `ADMIN_BASIC_AUTH_USER=admin`
+   - `ADMIN_BASIC_AUTH_PASSWORD=请替换为强密码`
+   - openclaw 预留代码目录：`/var/www/apps/openclaw/current`
+   - openclaw 预留数据目录：`/var/www/data/openclaw/`
 6. 使用 PM2 启动：
-   - 先监听 `3000` 端口验证。
+   - 99blog 使用进程名 `99blog`，监听 `127.0.0.1:3000`。
+   - openclaw 后续使用进程名 `openclaw`，监听 `127.0.0.1:3001`。
+   - 99blog 可直接执行：`pm2 start ecosystem.config.cjs`。
 7. 临时验证访问：
    - `http://62.234.55.252:3000`
-   - `http://62.234.55.252:3000/admin`
+   - `http://62.234.55.252:3000/admin`（需要 Basic Auth）
 8. 域名审核通过后再做：
    - 更新 `src/data/site.ts` 的 `origin`。
    - 配置 Nginx 反向代理。
    - 配置 HTTPS。
-   - 给 `/admin` 增加访问保护。
+   - 给 `/admin` 增加服务器层二次保护。
 
 ### 13.5 明天启动时先检查
 

@@ -41,6 +41,9 @@ npm run build
 
 # 启动生产构建
 npm run start
+
+# 按 99blog 生产端口启动
+npm run start:99blog
 ```
 
 ## 项目结构
@@ -113,7 +116,14 @@ src/data/experience.ts
 /admin
 ```
 
-后台按个人本机使用设计，初版不设置登录密码，不建议直接暴露到公网。当前采用“左侧导航 + 右侧模块内容区”的工作台布局，方便长期清晰管理：
+后台已通过应用层 Basic Auth 保护 `/admin` 和 `/api/admin/*`。本地开发环境未配置账号密码时允许访问，生产环境必须设置：
+
+```bash
+ADMIN_BASIC_AUTH_USER=admin
+ADMIN_BASIC_AUTH_PASSWORD=请替换为强密码
+```
+
+当前采用“左侧导航 + 右侧模块内容区”的工作台布局，方便长期清晰管理：
 
 - 概览：查看链接、项目、经历、文案、图片数量，并快速进入常用模块。
 - 个人资料：修改姓名、别名、头像路径、简介等信息。
@@ -133,7 +143,7 @@ data/99blog.sqlite
 后续部署服务器时可通过环境变量覆盖：
 
 ```bash
-BLOG_DB_PATH=/var/www/99blog/data/99blog.sqlite
+BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite
 ```
 
 ### 头像
@@ -172,7 +182,7 @@ ADMIN_README.md
 
 - 首页、文章、项目、经历、关于、联系等主要页面。
 - 首页和关于页头像展示，默认头像路径为 `/profile/avatar.webp`。
-- 本机轻量后台 `/admin` 已改为左侧导航工作台，支持概览、资料、链接、项目、经历、文案、图片和公众号 HTML 预览。
+- 本机轻量后台 `/admin` 已改为左侧导航工作台，并通过 Basic Auth 保护后台页面和后台 API，支持概览、资料、链接、项目、经历、文案、图片和公众号 HTML 预览。
 - 前台首页、关于、联系、项目、经历页已接入后台 SQLite 优先读取，静态数据作为 fallback。
 - SQLite 本地数据存储，默认数据库为 `data/99blog.sqlite`。
 - MDX 文章读取和文章详情渲染。

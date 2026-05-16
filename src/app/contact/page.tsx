@@ -4,6 +4,10 @@ import { getAdminLinks, getAdminProfile } from "@/lib/admin/repositories";
 
 export const metadata = { title: "驿站 · 联系 | 99blog" };
 
+function isUsableHref(href: string) {
+  return href.trim().length > 0 && href !== "#";
+}
+
 export default function ContactPage() {
   const adminProfile = getAdminProfile();
   const profile = { ...staticProfile, ...adminProfile };
@@ -26,7 +30,15 @@ export default function ContactPage() {
             ))}
           </div>
           <div className="mt-8 grid gap-3 md:grid-cols-3">
-            {links.map((link) => <a key={link.label} href={link.href} className="ink-button rounded-full bg-red-900 px-5 py-3 text-center font-bold text-white">{link.label}</a>)}
+            {links.map((link) => (
+              isUsableHref(link.href) ? (
+                <a key={link.label} href={link.href} className="ink-button rounded-full bg-red-900 px-5 py-3 text-center font-bold text-white">{link.label}</a>
+              ) : (
+                <span key={link.label} className="rounded-full border border-orange-100 bg-orange-50 px-5 py-3 text-center font-bold text-stone-500">
+                  {link.label} · {link.value || "待补充"}
+                </span>
+              )
+            ))}
           </div>
         </div>
       </section>

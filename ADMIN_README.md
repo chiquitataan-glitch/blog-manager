@@ -4,9 +4,9 @@
 
 ## 1. 后台定位
 
-99blog 后台是个人本机内容管理系统，用于统一维护个人资料、链接、项目、经历、文章文案、图片素材和公众号 HTML。
+99blog 后台是个人内容管理系统，用于统一维护个人资料、链接、项目、经历、文章文案、图片素材和公众号 HTML。
 
-当前后台按个人使用设计，不设置登录密码。适合在本机、内网、VPN 或有访问限制的服务器环境使用，不建议直接裸露到公网。
+当前后台已通过应用层 Basic Auth 保护 `/admin` 和 `/api/admin/*`。本地开发环境未配置账号密码时允许访问；生产环境必须设置后台访问账号和密码。
 
 ## 2. 访问方式
 
@@ -28,7 +28,14 @@ npm run dev
 https://你的域名/admin
 ```
 
-如果部署到公网服务器，必须先通过 Nginx、服务器防火墙、IP 白名单、VPN、Basic Auth 或其他方式限制 `/admin` 访问。
+生产环境需要配置：
+
+```bash
+ADMIN_BASIC_AUTH_USER=admin
+ADMIN_BASIC_AUTH_PASSWORD=请替换为强密码
+```
+
+如果部署到公网服务器，应用层 Basic Auth 是第一层保护，仍建议继续通过 Nginx、服务器防火墙、IP 白名单或 VPN 限制 `/admin` 访问。
 
 ## 3. 后台模块
 
@@ -80,11 +87,7 @@ public/profile/avatar.webp
 - 作品项目
 - 微信展示信息
 
-如果链接暂未补齐，可以先填写：
-
-```text
-#
-```
+如果链接暂未补齐，可以先留空。前台会展示为“待补充”，不会跳转。
 
 ### 3.4 项目
 
@@ -201,10 +204,10 @@ data/99blog.sqlite
 可通过环境变量覆盖：
 
 ```bash
-BLOG_DB_PATH=/var/www/99blog/data/99blog.sqlite
+BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite
 ```
 
-建议服务器部署时将数据库放在独立持久化目录，并纳入备份。
+建议服务器部署时将数据库放在独立持久化目录，并纳入备份。后续服务器会接入 openclaw，99blog 建议固定使用 `/var/www/data/99blog/`，openclaw 预留 `/var/www/data/openclaw/`，不要混用。
 
 ## 5. 图片与文件持久化
 
@@ -249,12 +252,13 @@ npm run build
 部署前仍需确认：
 
 - [ ] 将 `src/data/site.ts` 中的 `origin` 从 `https://example.com` 改成真实域名。
-- [ ] 确认 `/admin` 不会直接裸露公网，或已经通过服务器层做访问限制。
+- [ ] 设置 `ADMIN_BASIC_AUTH_USER` 和 `ADMIN_BASIC_AUTH_PASSWORD`，并确认没有使用默认占位密码。
+- [ ] 确认 `/admin` 和 `/api/admin/*` 已通过 Basic Auth 保护，服务器层建议再加 IP 白名单、VPN 或 Nginx Basic Auth。
 - [ ] 服务器已安装 Node.js、npm。
 - [ ] 服务器已安装 `@geekjourneyx/md2wechat`。
-- [ ] 设置 `BLOG_DB_PATH` 指向持久化 SQLite 路径。
-- [ ] 备份 `public/uploads/`。
-- [ ] 准备 Nginx 反向代理或其他进程守护方案。
+- [ ] 设置 `BLOG_DB_PATH` 指向 `/var/www/data/99blog/99blog.sqlite`。
+- [ ] 备份 `public/uploads/` 和 `/var/www/data/99blog/`。
+- [ ] 99blog 使用端口 `3000`，后续 openclaw 预留端口 `3001`，两个项目不要共用目录、数据或 PM2 进程名。
 
 ## 8. 推荐服务器运行方式
 
@@ -268,22 +272,29 @@ npm run build
 启动：
 
 ```bash
-BLOG_DB_PATH=/var/www/99blog/data/99blog.sqlite npm run start
+pm2 start ecosystem.config.cjs
+```
+
+如果不使用 PM2，也可以直接运行：
+
+```bash
+BLOG_DB_PATH=/var/www/data/99blog/99blog.sqlite npm run start:99blog
 ```
 
 生产环境建议使用 PM2 或 systemd 常驻运行。
 
 ## 9. 安全提醒
 
-当前后台没有登录密码，这是用户确认后的个人使用策略。
+当前后台已通过 `proxy.ts` 对 `/admin` 和 `/api/admin/*` 增加应用层 Basic Auth。生产环境必须设置：
 
-如果部署到公网服务器，不建议直接开放：
-
-```text
-/admin
+```bash
+ADMIN_BASIC_AUTH_USER=admin
+ADMIN_BASIC_AUTH_PASSWORD=请替换为强密码
 ```
 
-建议至少选择一种保护方式：
+不要使用 `CHANGE_ME_BEFORE_DEPLOY` 或示例密码上线。
+
+如果部署到公网服务器，仍不建议只依赖单层保护。建议至少再选择一种服务器层保护方式：
 
 - 只允许本机 / 内网访问。
 - 使用 VPN 访问后台。

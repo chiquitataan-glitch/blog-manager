@@ -41,8 +41,8 @@ export const projects: Project[] = [
     featured: true,
     media: { cover: "/project-placeholder.svg" },
     links: [
-      { label: "GitHub 占位", href: "#", kind: "github" },
-      { label: "Demo 占位", href: "#", kind: "demo" },
+      { label: "GitHub 占位", href: "", kind: "github" },
+      { label: "Demo 占位", href: "", kind: "demo" },
     ],
   },
   {
@@ -59,7 +59,7 @@ export const projects: Project[] = [
     releasedAt: "2026-05",
     featured: false,
     media: { cover: "/project-placeholder.svg" },
-    links: [{ label: "资料占位", href: "#", kind: "docs" }],
+    links: [{ label: "资料占位", href: "", kind: "docs" }],
   },
 ];
 
