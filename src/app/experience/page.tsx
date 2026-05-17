@@ -1,6 +1,7 @@
 import { ExperienceTimeline } from "@/components/sections/experience-timeline";
 import { getAdminExperiences } from "@/lib/admin/repositories";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "足迹 · 经历 | 99blog" };
 
 export default function ExperiencePage() {

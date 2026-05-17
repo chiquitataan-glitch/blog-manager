@@ -3,6 +3,8 @@ import { CinematicHero } from "@/components/sections/cinematic-hero";
 import { profile as staticProfile } from "@/data/profile";
 import { getAdminProfile } from "@/lib/admin/repositories";
 
+export const dynamic = "force-dynamic";
+
 const panels = [
   { href: "/posts", icon: "▤", title: "卷轴", text: "产品与个人思考" },
   { href: "/projects", icon: "◇", title: "项目", text: "作品与实验" },

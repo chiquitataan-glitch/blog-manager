@@ -2,6 +2,7 @@ import Image from "next/image";
 import { profile as staticProfile } from "@/data/profile";
 import { getAdminProfile } from "@/lib/admin/repositories";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "自述 · 关于 | 99blog" };
 
 export default function AboutPage() {

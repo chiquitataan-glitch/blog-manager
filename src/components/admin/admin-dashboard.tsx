@@ -277,6 +277,38 @@ export function AdminDashboard() {
     setSelectedExperienceIndex(experiences.length);
   }
 
+  function removeProject(index: number) {
+    const updated = projects.filter((_, i) => i !== index);
+    setProjects(updated);
+    setSelectedProjectIndex(Math.min(selectedProjectIndex, updated.length - 1));
+    fetch("/api/admin/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projects: updated }),
+    }).then(() => setMessage("项目已删除。"));
+  }
+
+  function removeExperience(index: number) {
+    const updated = experiences.filter((_, i) => i !== index);
+    setExperiences(updated);
+    setSelectedExperienceIndex(Math.min(selectedExperienceIndex, updated.length - 1));
+    fetch("/api/admin/experience", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ experiences: updated }),
+    }).then(() => setMessage("经历已删除。"));
+  }
+
+  function removeLink(index: number) {
+    const updated = links.filter((_, i) => i !== index);
+    setLinks(updated);
+    fetch("/api/admin/links", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ links: updated }),
+    }).then(() => setMessage("链接已删除。"));
+  }
+
   function renderOverview() {
     return (
       <section className={panelClassName()}>
@@ -333,10 +365,11 @@ export function AdminDashboard() {
         <p className="mt-2 text-sm text-stone-600">用于联系页和外部入口。暂未补齐的链接可以留空，前台会显示为“待补充”。</p>
         <div className="mt-4 grid gap-3">
           {links.map((link, index) => (
-            <div key={link.id} className="grid gap-3 md:grid-cols-3">
+            <div key={link.id} className="group grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto]">
               <input className={fieldClassName()} value={link.label} onChange={(event) => updateLink(index, "label", event.target.value)} placeholder="标签" />
               <input className={fieldClassName()} value={link.value} onChange={(event) => updateLink(index, "value", event.target.value)} placeholder="展示值" />
               <input className={fieldClassName()} value={link.href} onChange={(event) => updateLink(index, "href", event.target.value)} placeholder="链接" />
+              <button className="flex items-center justify-center rounded-2xl border border-red-200 bg-white px-3 py-3 text-sm font-bold text-red-400 opacity-0 transition hover:bg-red-100 hover:text-red-700 group-hover:opacity-100" onClick={() => removeLink(index)} title="删除链接">✕</button>
             </div>
           ))}
         </div>
@@ -365,9 +398,12 @@ export function AdminDashboard() {
           <div className="grid content-start gap-2">
             {projects.length === 0 && <p className="rounded-2xl bg-orange-50 p-4 text-sm text-stone-600">还没有项目，点击“新增项目”开始。</p>}
             {projects.map((project, index) => (
-              <button key={`${project.slug}-${index}`} className={`rounded-2xl border p-4 text-left transition ${selectedProjectIndex === index ? "border-red-200 bg-red-50" : "border-orange-100 bg-white hover:bg-orange-50"}`} onClick={() => setSelectedProjectIndex(index)}>
-                <strong className="block text-red-950">{project.name}</strong>
-                <span className="mt-1 block text-xs font-bold text-orange-700">{project.status} · {project.stage}</span>
+              <button key={`${project.slug}-${index}`} className={`group flex items-center justify-between rounded-2xl border p-4 text-left transition ${selectedProjectIndex === index ? "border-red-200 bg-red-50" : "border-orange-100 bg-white hover:bg-orange-50"}`} onClick={() => setSelectedProjectIndex(index)}>
+                <div>
+                  <strong className="block text-red-950">{project.name}</strong>
+                  <span className="mt-1 block text-xs font-bold text-orange-700">{project.status} · {project.stage}</span>
+                </div>
+                <span className="ml-2 flex-shrink-0 rounded-full px-2 py-1 text-xs font-bold text-red-400 opacity-0 transition hover:bg-red-100 hover:text-red-700 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); removeProject(index); }} title="删除项目">✕</span>
               </button>
             ))}
           </div>
@@ -430,9 +466,12 @@ export function AdminDashboard() {
           <div className="grid content-start gap-2">
             {experiences.length === 0 && <p className="rounded-2xl bg-orange-50 p-4 text-sm text-stone-600">还没有经历，点击“新增经历”开始。</p>}
             {experiences.map((experience, index) => (
-              <button key={`${experience.type}-${experience.title}-${index}`} className={`rounded-2xl border p-4 text-left transition ${selectedExperienceIndex === index ? "border-red-200 bg-red-50" : "border-orange-100 bg-white hover:bg-orange-50"}`} onClick={() => setSelectedExperienceIndex(index)}>
-                <strong className="block text-red-950">{experience.title}</strong>
-                <span className="mt-1 block text-xs font-bold text-orange-700">{experience.type} · {experience.period || "时间待补充"}</span>
+              <button key={`${experience.type}-${experience.title}-${index}`} className={`group flex items-center justify-between rounded-2xl border p-4 text-left transition ${selectedExperienceIndex === index ? "border-red-200 bg-red-50" : "border-orange-100 bg-white hover:bg-orange-50"}`} onClick={() => setSelectedExperienceIndex(index)}>
+                <div>
+                  <strong className="block text-red-950">{experience.title}</strong>
+                  <span className="mt-1 block text-xs font-bold text-orange-700">{experience.type} · {experience.period || "时间待补充"}</span>
+                </div>
+                <span className="ml-2 flex-shrink-0 rounded-full px-2 py-1 text-xs font-bold text-red-400 opacity-0 transition hover:bg-red-100 hover:text-red-700 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); removeExperience(index); }} title="删除经历">✕</span>
               </button>
             ))}
           </div>

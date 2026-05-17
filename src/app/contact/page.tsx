@@ -2,6 +2,7 @@ import { links as staticLinks } from "@/data/links";
 import { profile as staticProfile } from "@/data/profile";
 import { getAdminLinks, getAdminProfile } from "@/lib/admin/repositories";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "驿站 · 联系 | 99blog" };
 
 function isUsableHref(href: string) {

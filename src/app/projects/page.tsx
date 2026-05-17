@@ -1,6 +1,7 @@
 import { ProjectCard } from "@/components/sections/project-card";
 import { getAdminProjects } from "@/lib/admin/repositories";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "项目 | 99blog" };
 
 export default function ProjectsPage() {
